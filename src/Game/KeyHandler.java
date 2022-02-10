@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class KeyHandler implements KeyListener {
-    public boolean isUpPressed, isDownPressed, isRightPressed, isLeftPressed;
+    public boolean isUpPressed, isDownPressed, isRightPressed, isLeftPressed, isOnePressed, isTwoPressed,  isThreePressed, isFourPressed;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -32,7 +32,10 @@ public class KeyHandler implements KeyListener {
                 System.out.println("Right pressed");
                 isRightPressed = true;
             }
-            default -> {}
+            case KeyEvent.VK_1 -> isOnePressed = true;
+            case KeyEvent.VK_2 -> isTwoPressed = true;
+            case KeyEvent.VK_3 -> isThreePressed = true;
+            case KeyEvent.VK_4 -> isFourPressed = true;
         }
     }
 

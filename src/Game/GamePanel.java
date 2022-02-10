@@ -2,19 +2,21 @@ package Game;
 
 import Combat.Block;
 import Combat.BlockCreator;
+import Combat.BoxCollector;
+import Combat.Enemy;
 import Player.Player;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class GamePanel extends JPanel implements Runnable{
+public class GamePanel extends JPanel implements Runnable {
 
     final int originalTileSize = 16; //16x16
     final int scale = 3; //48x48
 
     final int tileSize = originalTileSize * scale;
-    final int maxScreenCol = 16;
+    final int maxScreenCol = 32;
     final int maxScreenRow = 12;
     final int screenWidth = tileSize * maxScreenCol;
     final int screenHeight = tileSize * maxScreenRow;
@@ -22,11 +24,14 @@ public class GamePanel extends JPanel implements Runnable{
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
 
-    ArrayList<Block> blocks = new ArrayList<>();
+    ArrayList<Block> enemyBlocks = new ArrayList<>();
+    ArrayList<Block> playerBlocks = new ArrayList<>();
     BlockCreator blockCreator = new BlockCreator();
+    BoxCollector boxCollector = new BoxCollector(this);
 
     final int fps = 60;
 
+    Enemy enemy = new Enemy(this);
     Player player;
 
     public GamePanel() {
@@ -46,7 +51,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     @Override
     public void run() {
-        double drawInterval = 1000000000f/fps;
+        double drawInterval = 1000000000f / fps;
         double nextDrawTime = System.nanoTime() + drawInterval;
 
         while (gameThread != null) {
@@ -55,11 +60,11 @@ public class GamePanel extends JPanel implements Runnable{
 
             try {
                 double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime/1000000;
+                remainingTime = remainingTime / 1000000;
 
                 if (remainingTime < 0) remainingTime = 0;
 
-                Thread.sleep((long)remainingTime);
+                Thread.sleep((long) remainingTime);
 
                 nextDrawTime += drawInterval;
             } catch (InterruptedException e) {
@@ -69,13 +74,17 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     int frameCounter = 1;
+
     public void update() {
         if (frameCounter == 30) {
-            blocks.add(blockCreator.createBlock(this));
+            enemyBlocks.add(blockCreator.createBlock(this));
             frameCounter = 1;
         }
-        blocks.forEach(Block::update);
+        enemyBlocks.forEach(Block::update);
+        playerBlocks.forEach(Block::update);
         player.update();
+        enemy.update();
+        boxCollector.update();
 
         frameCounter++;
     }
@@ -84,10 +93,16 @@ public class GamePanel extends JPanel implements Runnable{
         super.paintComponent(graphics);
         Graphics2D graphics2D = (Graphics2D) graphics;
 
-        //Draw each block
-        blocks.forEach(block -> block.draw(graphics2D));
+        //Draw each enemy block
+        enemyBlocks.forEach(block -> block.draw(graphics2D));
+        //Draw each player block
+        playerBlocks.forEach(block -> block.draw(graphics2D));
         //Draw the player squares
         player.draw(graphics2D);
+
+        enemy.draw(graphics2D);
+
+        boxCollector.draw(graphics2D);
 
         graphics2D.dispose();
     }
@@ -96,7 +111,25 @@ public class GamePanel extends JPanel implements Runnable{
         return tileSize;
     }
 
-    public ArrayList<Block> getBlocks() {
-        return blocks;
+    public ArrayList<Block> getEnemyBlocks() {
+        return enemyBlocks;
+    }
+
+    public ArrayList<Block> getPlayerBlocks() {
+        return playerBlocks;
+    }
+
+    @Override
+    public int getWidth() {
+        return maxScreenCol * 48;
+    }
+
+    @Override
+    public int getHeight() {
+        return maxScreenRow * 48;
+    }
+
+    public BoxCollector getBoxCollector() {
+        return boxCollector;
     }
 }

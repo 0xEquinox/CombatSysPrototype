@@ -21,9 +21,9 @@ public class Block {
 
     BufferedImage sprite;
 
-    public Block(GamePanel gamePanel, int laneNumber) {
-        this.x = gamePanel.getWidth();
-        this.y = laneNumber * gamePanel.getTileSize() + 100;
+    public Block(GamePanel gamePanel, int laneNumber, int x) {
+        this.x = x;
+        this.y = laneNumber * gamePanel.getTileSize() + gamePanel.getHeight() / 4;
         this.gamePanel = gamePanel;
         this.width = gamePanel.getTileSize();
         this.height = gamePanel.getTileSize();
